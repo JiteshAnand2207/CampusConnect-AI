@@ -17,14 +17,17 @@ export const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(409, "User with this email already exists");
   }
 
-  const user = await User.create({
-    name,
-    email,
-    password,
-    role,
-    department,
-    year,
-  });
+  const allowedPublicRoles = ["student", "organizer"];
+const safeRole = allowedPublicRoles.includes(role) ? role : "student";
+
+const user = await User.create({
+  name,
+  email,
+  password,
+  role: safeRole,
+  department,
+  year,
+});
 
   const createdUser = await User.findById(user._id);
 

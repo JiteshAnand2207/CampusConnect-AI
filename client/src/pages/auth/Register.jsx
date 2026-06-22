@@ -118,8 +118,7 @@ const Register = () => {
               className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-indigo-500"
             >
               <option value="student">Student</option>
-              <option value="organizer">Organizer</option>
-              <option value="moderator">Moderator</option>
+<option value="organizer">Organizer</option>
             </select>
           </div>
 
