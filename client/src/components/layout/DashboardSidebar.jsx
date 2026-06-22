@@ -3,6 +3,16 @@ import { useAuth } from "../../context/AuthContext";
 
 const baseLinks = [
   {
+  label: "Create Event",
+  path: "/dashboard/events/create",
+  roles: ["organizer", "admin"],
+},
+{
+  label: "Approve Events",
+  path: "/dashboard/admin/events",
+  roles: ["admin"],
+},
+  {
     label: "Overview",
     path: "/dashboard",
     roles: ["student", "organizer", "moderator", "admin"],

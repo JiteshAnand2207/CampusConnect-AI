@@ -1,11 +1,14 @@
 import { Route, Routes } from "react-router-dom";
+
 import Navbar from "./components/layout/Navbar";
 import DashboardLayout from "./components/layout/DashboardLayout";
 import ProtectedRoute from "./components/protected/ProtectedRoute";
 
 import Home from "./pages/Home";
 import Events from "./pages/Events";
+import EventDetails from "./pages/EventDetails";
 import Problems from "./pages/Problems";
+
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 
@@ -17,6 +20,8 @@ import DashboardTickets from "./pages/dashboard/DashboardTickets";
 import OrganizerPanel from "./pages/dashboard/OrganizerPanel";
 import ModerationPanel from "./pages/dashboard/ModerationPanel";
 import AdminPanel from "./pages/dashboard/AdminPanel";
+import CreateEvent from "./pages/dashboard/CreateEvent";
+import AdminEvents from "./pages/dashboard/AdminEvents";
 
 const App = () => {
   return (
@@ -26,6 +31,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/events" element={<Events />} />
+        <Route path="/events/:id" element={<EventDetails />} />
         <Route path="/problems" element={<Problems />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -39,7 +45,18 @@ const App = () => {
           }
         >
           <Route index element={<Dashboard />} />
+
           <Route path="events" element={<DashboardEvents />} />
+
+          <Route
+            path="events/create"
+            element={
+              <ProtectedRoute allowedRoles={["organizer", "admin"]}>
+                <CreateEvent />
+              </ProtectedRoute>
+            }
+          />
+
           <Route path="problems" element={<DashboardProblems />} />
           <Route path="solutions" element={<DashboardSolutions />} />
 
@@ -75,6 +92,15 @@ const App = () => {
             element={
               <ProtectedRoute allowedRoles={["admin"]}>
                 <AdminPanel />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="admin/events"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <AdminEvents />
               </ProtectedRoute>
             }
           />

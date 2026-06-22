@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
 const roleMessages = {
@@ -49,6 +50,8 @@ const Dashboard = () => {
         <p className="mt-3 max-w-3xl text-slate-600">
           {roleMessages[user?.role] || roleMessages.student}
         </p>
+
+        <QuickActions role={user?.role} />
       </div>
 
       <div className="mt-6 grid gap-5 md:grid-cols-3">
@@ -60,12 +63,12 @@ const Dashboard = () => {
             <p className="text-sm font-semibold text-slate-500">
               {card.title}
             </p>
+
             <p className="mt-3 text-4xl font-extrabold text-slate-950">
               {card.value}
             </p>
-            <p className="mt-2 text-sm text-slate-500">
-              {card.description}
-            </p>
+
+            <p className="mt-2 text-sm text-slate-500">{card.description}</p>
           </div>
         ))}
       </div>
@@ -115,6 +118,104 @@ const Dashboard = () => {
       </div>
     </div>
   );
+};
+
+const QuickActions = ({ role }) => {
+  if (role === "organizer") {
+    return (
+      <div className="mt-6 flex flex-wrap gap-3">
+        <Link
+          to="/dashboard/events/create"
+          className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700"
+        >
+          Create Event
+        </Link>
+
+        <Link
+          to="/dashboard/events"
+          className="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+        >
+          My Events
+        </Link>
+
+        <Link
+          to="/dashboard/organizer"
+          className="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+        >
+          Organizer Panel
+        </Link>
+      </div>
+    );
+  }
+
+  if (role === "admin") {
+    return (
+      <div className="mt-6 flex flex-wrap gap-3">
+        <Link
+          to="/dashboard/admin/events"
+          className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700"
+        >
+          Approve Events
+        </Link>
+
+        <Link
+          to="/dashboard/events/create"
+          className="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+        >
+          Create Event
+        </Link>
+
+        <Link
+          to="/dashboard/admin"
+          className="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+        >
+          Admin Panel
+        </Link>
+      </div>
+    );
+  }
+
+  if (role === "student") {
+    return (
+      <div className="mt-6 flex flex-wrap gap-3">
+        <Link
+          to="/events"
+          className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700"
+        >
+          Browse Events
+        </Link>
+
+        <Link
+          to="/problems"
+          className="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+        >
+          View Problems
+        </Link>
+      </div>
+    );
+  }
+
+  if (role === "moderator") {
+    return (
+      <div className="mt-6 flex flex-wrap gap-3">
+        <Link
+          to="/dashboard/moderation"
+          className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700"
+        >
+          Moderation Panel
+        </Link>
+
+        <Link
+          to="/dashboard/problems"
+          className="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+        >
+          Review Problems
+        </Link>
+      </div>
+    );
+  }
+
+  return null;
 };
 
 const Permission = ({ text }) => {

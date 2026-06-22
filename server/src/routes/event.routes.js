@@ -9,11 +9,15 @@ import {
   rejectEvent,
   updateEvent,
 } from "../controllers/event.controller.js";
-import { authorizeRoles, protect } from "../middlewares/auth.middleware.js";
+import {
+  authorizeRoles,
+  optionalAuth,
+  protect,
+} from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-router.get("/", getAllEvents);
+router.get("/", optionalAuth, getAllEvents);
 
 router.post(
   "/",

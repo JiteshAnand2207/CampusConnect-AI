@@ -36,3 +36,25 @@ export const authorizeRoles = (...roles) => {
     next();
   };
 };
+export const optionalAuth = asyncHandler(async (req, res, next) => {
+  const token =
+    req.cookies?.accessToken ||
+    req.header("Authorization")?.replace("Bearer ", "");
+
+  if (!token) {
+    return next();
+  }
+
+  try {
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decodedToken?._id);
+
+    if (user) {
+      req.user = user;
+    }
+
+    next();
+  } catch (error) {
+    next();
+  }
+});
