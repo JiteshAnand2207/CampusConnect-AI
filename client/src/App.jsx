@@ -17,7 +17,6 @@ import DashboardEvents from "./pages/dashboard/DashboardEvents";
 import DashboardProblems from "./pages/dashboard/DashboardProblems";
 import DashboardSolutions from "./pages/dashboard/DashboardSolutions";
 import DashboardTickets from "./pages/dashboard/DashboardTickets";
-
 import OrganizerPanel from "./pages/dashboard/OrganizerPanel";
 import ModerationPanel from "./pages/dashboard/ModerationPanel";
 import AdminPanel from "./pages/dashboard/AdminPanel";
@@ -31,17 +30,13 @@ const App = () => {
       <Navbar />
 
       <Routes>
-        {/* Public Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/events" element={<Events />} />
         <Route path="/events/:id" element={<EventDetails />} />
         <Route path="/problems" element={<Problems />} />
-
-        {/* Auth Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Protected Dashboard Routes */}
         <Route
           path="/dashboard"
           element={
@@ -76,19 +71,19 @@ const App = () => {
           />
 
           <Route
-            path="verify-ticket"
+            path="organizer"
             element={
               <ProtectedRoute allowedRoles={["organizer", "admin"]}>
-                <VerifyTicket />
+                <OrganizerPanel />
               </ProtectedRoute>
             }
           />
 
           <Route
-            path="organizer"
+            path="verify-ticket"
             element={
               <ProtectedRoute allowedRoles={["organizer", "admin"]}>
-                <OrganizerPanel />
+                <VerifyTicket />
               </ProtectedRoute>
             }
           />

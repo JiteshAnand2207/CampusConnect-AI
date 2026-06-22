@@ -134,7 +134,7 @@ export const verifyTicket = asyncHandler(async (req, res) => {
   }
 
   const registration = await Registration.findOne({ ticketCode })
-    .populate("event", "title venue startDate endDate")
+    .populate("event", "title venue startDate endDate createdBy")
     .populate("student", "name email department year");
 
   if (!registration) {
@@ -147,6 +147,17 @@ export const verifyTicket = asyncHandler(async (req, res) => {
 
   if (registration.status === "attended") {
     throw new ApiError(400, "Ticket already checked in");
+  }
+
+  const isAdmin = req.user.role === "admin";
+  const isEventOrganizer =
+    registration.event?.createdBy?.toString() === req.user._id.toString();
+
+  if (!isAdmin && !isEventOrganizer) {
+    throw new ApiError(
+      403,
+      "You can verify tickets only for events created by you"
+    );
   }
 
   registration.status = "attended";

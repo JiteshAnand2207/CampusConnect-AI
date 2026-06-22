@@ -5,11 +5,11 @@ const roleMessages = {
   student:
     "Track your registered events, QR tickets, reported problems, and shared solutions.",
   organizer:
-    "Create events, manage registrations, send announcements, and track participation.",
+    "Create events, manage registrations, verify tickets, send announcements, and track participation.",
   moderator:
     "Review public problems, manage reports, and help resolve campus issues.",
   admin:
-    "Manage users, approve events, monitor problems, and control platform operations.",
+    "Manage users, approve events, monitor problems, verify tickets, and control platform operations.",
 };
 
 const Dashboard = () => {
@@ -25,19 +25,22 @@ const Dashboard = () => {
           : "Events connected to your account will appear here.",
     },
     {
+      title: user?.role === "student" ? "Tickets" : "Ticket Verification",
+      value: "0",
+      description:
+        user?.role === "student"
+          ? "Your event tickets will appear here."
+          : "Ticket verification is available for organizers and admins.",
+    },
+    {
       title: "Problems",
       value: "0",
       description: "Campus problems reported or assigned to you.",
     },
-    {
-      title: "Solutions",
-      value: "0",
-      description: "Community solutions contributed by you.",
-    },
   ];
 
   return (
-    <div>
+    <div className="space-y-6">
       <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
         <p className="text-sm font-semibold uppercase tracking-wider text-indigo-600">
           {user?.role} dashboard
@@ -54,7 +57,7 @@ const Dashboard = () => {
         <QuickActions role={user?.role} />
       </div>
 
-      <div className="mt-6 grid gap-5 md:grid-cols-3">
+      <div className="grid gap-5 md:grid-cols-3">
         {cards.map((card) => (
           <div
             key={card.title}
@@ -73,7 +76,7 @@ const Dashboard = () => {
         ))}
       </div>
 
-      <div className="mt-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <h2 className="text-xl font-bold text-slate-950">
           Current role permissions
         </h2>
@@ -82,9 +85,9 @@ const Dashboard = () => {
           {user?.role === "student" && (
             <>
               <Permission text="Browse and register for events" />
+              <Permission text="View QR event tickets" />
               <Permission text="Raise public and private problems" />
               <Permission text="Post solutions on public problems" />
-              <Permission text="Use AI assistant" />
             </>
           )}
 
@@ -92,8 +95,8 @@ const Dashboard = () => {
             <>
               <Permission text="Create and manage events" />
               <Permission text="View event registrations" />
+              <Permission text="Verify student tickets" />
               <Permission text="Send event announcements" />
-              <Permission text="Access organizer panel" />
             </>
           )}
 
@@ -110,7 +113,7 @@ const Dashboard = () => {
             <>
               <Permission text="Manage all users" />
               <Permission text="Approve or reject events" />
-              <Permission text="View all public and private problems" />
+              <Permission text="Verify all event tickets" />
               <Permission text="Access platform analytics" />
             </>
           )}
@@ -139,10 +142,10 @@ const QuickActions = ({ role }) => {
         </Link>
 
         <Link
-          to="/dashboard/organizer"
-          className="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+          to="/dashboard/verify-ticket"
+          className="rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-700"
         >
-          Organizer Panel
+          Verify Ticket
         </Link>
       </div>
     );
@@ -166,10 +169,10 @@ const QuickActions = ({ role }) => {
         </Link>
 
         <Link
-          to="/dashboard/admin"
-          className="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+          to="/dashboard/verify-ticket"
+          className="rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-700"
         >
-          Admin Panel
+          Verify Ticket
         </Link>
       </div>
     );
@@ -186,10 +189,10 @@ const QuickActions = ({ role }) => {
         </Link>
 
         <Link
-          to="/problems"
+          to="/dashboard/tickets"
           className="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
         >
-          View Problems
+          My Tickets
         </Link>
       </div>
     );
@@ -203,13 +206,6 @@ const QuickActions = ({ role }) => {
           className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700"
         >
           Moderation Panel
-        </Link>
-
-        <Link
-          to="/dashboard/problems"
-          className="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
-        >
-          Review Problems
         </Link>
       </div>
     );
