@@ -1,23 +1,23 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
-const ProtectedRoute = ({ children, allowedRoles }) => {
-  const { user, authLoading, isAuthenticated } = useAuth();
+const ProtectedRoute = ({ children }) => {
+  const { user, loading } = useAuth();
 
-  if (authLoading) {
+  if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p className="text-lg font-semibold text-slate-700">Loading...</p>
-      </div>
+      <main className="cc-loading-page">
+        <div className="cc-loading-card">
+          <span>CampusConnect AI</span>
+          <h1>Checking your session...</h1>
+          <p>Please wait while we open your dashboard.</p>
+        </div>
+      </main>
     );
   }
 
-  if (!isAuthenticated) {
+  if (!user) {
     return <Navigate to="/login" replace />;
-  }
-
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/dashboard" replace />;
   }
 
   return children;

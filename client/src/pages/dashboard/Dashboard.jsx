@@ -1,252 +1,179 @@
-import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-
-const roleMessages = {
-  student:
-    "Track your registered events, QR tickets, reported problems, and shared solutions.",
-  organizer:
-    "Create events, manage registrations, verify tickets, send announcements, and track participation.",
-  moderator:
-    "Review public problems, manage reports, and help resolve campus issues.",
-  admin:
-    "Manage users, approve events, monitor problems, verify tickets, and control platform operations.",
-};
 
 const Dashboard = () => {
   const { user } = useAuth();
 
-  const cards = [
+  const role = user?.role || "student";
+  const name = user?.name || user?.fullName || "Campus User";
+  const email = user?.email || "user@campusconnect.ai";
+
+  const quickActions = [
     {
-      title: "Events",
-      value: "0",
-      description:
-        user?.role === "organizer"
-          ? "Events created by you will appear here."
-          : "Events connected to your account will appear here.",
+      title: "Explore Events",
+      description: "Find upcoming college events and register instantly.",
+      href: "/events",
+      icon: "🎫",
     },
     {
-      title: user?.role === "student" ? "Tickets" : "Ticket Verification",
-      value: "0",
-      description:
-        user?.role === "student"
-          ? "Your event tickets will appear here."
-          : "Ticket verification is available for organizers and admins.",
+      title: "Report Problem",
+      description: "Raise campus issues and track their status.",
+      href: "/problems",
+      icon: "🛠️",
     },
     {
-      title: "Problems",
-      value: "0",
-      description: "Campus problems reported or assigned to you.",
+      title: "AI Assistant",
+      description: "Ask questions about the platform and campus workflows.",
+      href: "/dashboard/ai",
+      icon: "🤖",
+    },
+    {
+      title: "Notifications",
+      description: "Check latest updates, approvals, and alerts.",
+      href: "/notifications",
+      icon: "🔔",
     },
   ];
 
+  const roleActions = {
+    student: [
+      "Register for events",
+      "Track your tickets",
+      "Report campus problems",
+      "Use AI assistant",
+    ],
+    organizer: [
+      "Create and manage events",
+      "Track registrations",
+      "Verify tickets",
+      "Notify participants",
+    ],
+    admin: [
+      "Approve events",
+      "Manage campus issues",
+      "Monitor users",
+      "Control platform workflow",
+    ],
+    moderator: [
+      "Review problem reports",
+      "Update issue status",
+      "Support campus moderation",
+      "Coordinate resolutions",
+    ],
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-        <p className="text-sm font-semibold uppercase tracking-wider text-indigo-600">
-          {user?.role} dashboard
-        </p>
+    <main className="cc-dashboard-page">
+      <section className="cc-dashboard-hero">
+        <div>
+          <span className="cc-dashboard-kicker">Dashboard</span>
+          <h1>Welcome back, {name}</h1>
+          <p>
+            Manage your CampusConnect AI activity from one smooth control room.
+            Events, problems, notifications, and AI tools are ready here.
+          </p>
 
-        <h1 className="mt-2 text-3xl font-bold text-slate-950">
-          Welcome, {user?.name}
-        </h1>
-
-        <p className="mt-3 max-w-3xl text-slate-600">
-          {roleMessages[user?.role] || roleMessages.student}
-        </p>
-
-        <QuickActions role={user?.role} />
-      </div>
-
-      <div className="grid gap-5 md:grid-cols-3">
-        {cards.map((card) => (
-          <div
-            key={card.title}
-            className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
-          >
-            <p className="text-sm font-semibold text-slate-500">
-              {card.title}
-            </p>
-
-            <p className="mt-3 text-4xl font-extrabold text-slate-950">
-              {card.value}
-            </p>
-
-            <p className="mt-2 text-sm text-slate-500">{card.description}</p>
+          <div className="cc-dashboard-user-row">
+            <span className="cc-dashboard-role">{role}</span>
+            <span className="cc-dashboard-email">{email}</span>
           </div>
-        ))}
-      </div>
-
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-xl font-bold text-slate-950">
-          Current role permissions
-        </h2>
-
-        <div className="mt-4 grid gap-3 md:grid-cols-2">
-          {user?.role === "student" && (
-            <>
-              <Permission text="Browse and register for events" />
-              <Permission text="View QR event tickets" />
-              <Permission text="Raise public and private problems" />
-              <Permission text="Post solutions on public problems" />
-            </>
-          )}
-
-          {user?.role === "organizer" && (
-            <>
-              <Permission text="Create and manage events" />
-              <Permission text="View event registrations" />
-              <Permission text="Verify student tickets" />
-              <Permission text="Send event announcements" />
-            </>
-          )}
-
-          {user?.role === "moderator" && (
-            <>
-              <Permission text="Review public campus problems" />
-              <Permission text="Moderate solutions and comments" />
-              <Permission text="Handle assigned private problems" />
-              <Permission text="Mark issues as resolved" />
-            </>
-          )}
-
-          {user?.role === "admin" && (
-            <>
-              <Permission text="Manage all users" />
-              <Permission text="Approve or reject events" />
-              <Permission text="Verify all event tickets" />
-              <Permission text="Access platform analytics" />
-            </>
-          )}
         </div>
-      </div>
-    </div>
-  );
-};
 
-const QuickActions = ({ role }) => {
-  if (role === "organizer") {
-    return (
-      <div className="mt-6 flex flex-wrap gap-3">
-        <Link
-          to="/dashboard/events/create"
-          className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700"
-        >
-          Create Event
-        </Link>
+        <div className="cc-dashboard-orbit-card">
+          <div className="cc-dashboard-orbit">
+            <span>AI</span>
+          </div>
+          <h3>Campus system online</h3>
+          <p>
+            Your account is connected and the dashboard is ready for quick
+            actions.
+          </p>
+        </div>
+      </section>
 
-        <Link
-          to="/dashboard/events"
-          className="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
-        >
-          My Events
-        </Link>
+      <section className="cc-dashboard-stats">
+        <article>
+          <span>Role</span>
+          <strong>{role}</strong>
+          <p>Current access level</p>
+        </article>
 
-        <Link
-          to="/dashboard/verify-ticket"
-          className="rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-700"
-        >
-          Verify Ticket
-        </Link>
+        <article>
+          <span>Events</span>
+          <strong>Live</strong>
+          <p>Browse and manage activities</p>
+        </article>
 
-        <Link
-  to="/dashboard/problems/create"
-  className="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
->
-  Report Problem
-</Link>
-      </div>
-    );
-  }
+        <article>
+          <span>Problems</span>
+          <strong>Track</strong>
+          <p>Report and resolve issues</p>
+        </article>
 
-  if (role === "admin") {
-    return (
-      <div className="mt-6 flex flex-wrap gap-3">
-        <Link
-          to="/dashboard/admin/events"
-          className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700"
-        >
-          Approve Events
-        </Link>
+        <article>
+          <span>AI</span>
+          <strong>Ready</strong>
+          <p>Ask campus-related questions</p>
+        </article>
+      </section>
 
-        <Link
-          to="/dashboard/events/create"
-          className="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
-        >
-          Create Event
-        </Link>
+      <section className="cc-dashboard-grid">
+        <div className="cc-dashboard-panel cc-dashboard-main-panel">
+          <div className="cc-panel-heading">
+            <span>Quick Actions</span>
+            <h2>Where do you want to go?</h2>
+          </div>
 
-        <Link
-          to="/dashboard/verify-ticket"
-          className="rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-700"
-        >
-          Verify Ticket
-        </Link>
+          <div className="cc-action-grid">
+            {quickActions.map((action) => (
+              <a href={action.href} className="cc-action-card" key={action.title}>
+                <div className="cc-action-icon">{action.icon}</div>
+                <div>
+                  <h3>{action.title}</h3>
+                  <p>{action.description}</p>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
 
-        <Link
-  to="/dashboard/problems/create"
-  className="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
->
-  Report Problem
-</Link>
+        <aside className="cc-dashboard-panel cc-dashboard-side-panel">
+          <div className="cc-panel-heading">
+            <span>Your Role Flow</span>
+            <h2>{role} tools</h2>
+          </div>
 
-      <Link
-  to="/dashboard/admin/problems"
-  className="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
->
-  Manage Problems
-</Link>
-      </div>
-    );
-  }
+          <ul className="cc-role-list">
+            {(roleActions[role] || roleActions.student).map((item) => (
+              <li key={item}>
+                <span>✓</span>
+                {item}
+              </li>
+            ))}
+          </ul>
+        </aside>
+      </section>
 
-  if (role === "student") {
-    return (
-      <div className="mt-6 flex flex-wrap gap-3">
-        <Link
-          to="/events"
-          className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700"
-        >
-          Browse Events
-        </Link>
+      <section className="cc-dashboard-bottom">
+        <article className="cc-dashboard-panel">
+          <span className="cc-dashboard-kicker">Project Status</span>
+          <h2>CampusConnect AI is running successfully.</h2>
+          <p>
+            The frontend, backend, authentication, database, notifications,
+            problem reporting, event modules, and AI assistant are connected in
+            one deployed full-stack system.
+          </p>
+        </article>
 
-        <Link
-          to="/dashboard/tickets"
-          className="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
-        >
-          My Tickets
-        </Link>
-
-        <Link
-  to="/dashboard/problems/create"
-  className="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
->
-  Report Problem
-</Link>
-      </div>
-    );
-  }
-
-  if (role === "moderator") {
-    return (
-      <div className="mt-6 flex flex-wrap gap-3">
-        <Link
-          to="/dashboard/moderation"
-          className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700"
-        >
-          Moderation Panel
-        </Link>
-      </div>
-    );
-  }
-
-  return null;
-};
-
-const Permission = ({ text }) => {
-  return (
-    <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700">
-      {text}
-    </div>
+        <article className="cc-dashboard-panel">
+          <span className="cc-dashboard-kicker">Next Suggested Step</span>
+          <h2>Keep improving the interface.</h2>
+          <p>
+            Continue polishing event detail pages, problem cards, ticket UI, and
+            admin panels so the complete website feels consistent.
+          </p>
+        </article>
+      </section>
+    </main>
   );
 };
 

@@ -1,116 +1,67 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { useEffect, useState } from "react";
-import { getUnreadNotificationCount } from "../../api/notificationApi";
+
 const Navbar = () => {
-  const { user, isAuthenticated, logout } = useAuth();
-  const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
-  const handleLogout = async () => {
-    await logout();
-    navigate("/login");
-  };
-
-  const [unreadCount, setUnreadCount] = useState(0);
-
-useEffect(() => {
-  const fetchUnreadCount = async () => {
-    if (!isAuthenticated) {
-      setUnreadCount(0);
-      return;
-    }
-
-    try {
-      const response = await getUnreadNotificationCount();
-      setUnreadCount(response.data.count || 0);
-    } catch (error) {
-      setUnreadCount(0);
-    }
-  };
-
-  fetchUnreadCount();
-
-  const intervalId = setInterval(fetchUnreadCount, 30000);
-
-  return () => clearInterval(intervalId);
-}, [isAuthenticated, location.pathname]);
+  const navLinkClass = ({ isActive }) =>
+    isActive ? "cc-nav-link active" : "cc-nav-link";
 
   return (
-    <nav className="border-b border-slate-200 bg-white">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-        <Link to="/" className="text-xl font-bold text-indigo-600">
-          CampusConnect AI
+    <header className="cc-navbar-shell">
+      <nav className="cc-navbar">
+        <Link to="/" className="cc-brand">
+          <span className="cc-brand-mark">✦</span>
+          <span>CampusConnect AI</span>
         </Link>
 
-        <div className="flex items-center gap-4">
-          <Link to="/events" className="text-sm font-medium text-slate-700">
+        <div className="cc-nav-links">
+          <NavLink to="/events" className={navLinkClass}>
             Events
-          </Link>
+          </NavLink>
 
-          <Link to="/problems" className="text-sm font-medium text-slate-700">
+          <NavLink to="/problems" className={navLinkClass}>
             Problems
-          </Link>
-          <Link
-  to="/dashboard/ai"
-  className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-600"
->
-  AI Assistant
-</Link>
-          {isAuthenticated ? (
+          </NavLink>
+
+          <NavLink to="/dashboard/ai" className={navLinkClass}>
+            AI Assistant
+          </NavLink>
+
+          {user && (
             <>
-              <Link
-                to="/dashboard"
-                className="text-sm font-medium text-slate-700"
-              >
+              <NavLink to="/dashboard" className={navLinkClass}>
                 Dashboard
-              </Link>
-              <Link
-  to="/dashboard/notifications"
-  className="relative text-sm font-medium text-slate-700"
->
-  Notifications
-  {unreadCount > 0 && (
-    <span className="ml-2 rounded-full bg-red-600 px-2 py-0.5 text-xs font-bold text-white">
-      {unreadCount}
-    </span>
-  )}
-</Link>
+              </NavLink>
 
-              <span className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700">
-                {user?.role}
-              </span>
+              <NavLink to="/notifications" className={navLinkClass}>
+                Notifications
+              </NavLink>
+            </>
+          )}
+        </div>
 
-              <button
-                onClick={handleLogout}
-                className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
-              >
+        <div className="cc-nav-actions">
+          {user ? (
+            <>
+              <span className="cc-user-pill">{user.role || "student"}</span>
+              <button type="button" className="cc-logout-btn" onClick={logout}>
                 Logout
               </button>
             </>
           ) : (
             <>
-              <Link to="/login" className="text-sm font-medium text-slate-700">
+              <Link to="/login" className="cc-login-link">
                 Login
               </Link>
-{isAuthenticated && (
-  <Link
-    to="/dashboard/ai"
-    className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-600"
-  >
-    AI Assistant
-  </Link>
-)}
-              <Link
-                to="/register"
-                className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white"
-              >
-                Register
+              <Link to="/register" className="cc-nav-cta">
+                Get Started
               </Link>
             </>
           )}
         </div>
-      </div>
-    </nav>
+      </nav>
+    </header>
   );
 };
 

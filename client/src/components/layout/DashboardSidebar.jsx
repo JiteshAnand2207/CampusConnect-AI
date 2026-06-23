@@ -1,121 +1,122 @@
-import { NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-
-const baseLinks = [
-  {
-    label: "Overview",
-    path: "/dashboard",
-    roles: ["student", "organizer", "moderator", "admin"],
-  },
-  {
-  label: "AI Assistant",
-  path: "/dashboard/ai",
-  roles: ["student", "organizer", "moderator", "admin"],
-},
-  {
-    label: "Notifications",
-    path: "/dashboard/notifications",
-    roles: ["student", "organizer", "moderator", "admin"],
-  },
-  {
-    label: "Events",
-    path: "/dashboard/events",
-    roles: ["student", "organizer", "moderator", "admin"],
-  },
-  {
-    label: "Create Event",
-    path: "/dashboard/events/create",
-    roles: ["organizer", "admin"],
-  },
-  {
-    label: "Approve Events",
-    path: "/dashboard/admin/events",
-    roles: ["admin"],
-  },
-  {
-    label: "Tickets",
-    path: "/dashboard/tickets",
-    roles: ["student"],
-  },
-  {
-    label: "Verify Ticket",
-    path: "/dashboard/verify-ticket",
-    roles: ["organizer", "admin"],
-  },
-  {
-    label: "Organizer Panel",
-    path: "/dashboard/organizer",
-    roles: ["organizer", "admin"],
-  },
-  {
-    label: "Problems",
-    path: "/dashboard/problems",
-    roles: ["student", "organizer", "moderator", "admin"],
-  },
-  {
-    label: "Report Problem",
-    path: "/dashboard/problems/create",
-    roles: ["student", "organizer", "moderator", "admin"],
-  },
-  {
-    label: "Manage Problems",
-    path: "/dashboard/admin/problems",
-    roles: ["admin", "moderator"],
-  },
-  {
-    label: "Solutions",
-    path: "/dashboard/solutions",
-    roles: ["student", "organizer", "moderator", "admin"],
-  },
-  {
-    label: "Moderation Panel",
-    path: "/dashboard/moderation",
-    roles: ["moderator", "admin"],
-  },
-  {
-    label: "Admin Panel",
-    path: "/dashboard/admin",
-    roles: ["admin"],
-  },
-];
-
 const DashboardSidebar = () => {
   const { user } = useAuth();
 
-  const visibleLinks = baseLinks.filter((link) =>
-    link.roles.includes(user?.role)
-  );
+  const role = user?.role || "student";
+
+  const menuItems = [
+    {
+      label: "Overview",
+      href: "/dashboard",
+      icon: "⌁",
+      roles: ["student", "organizer", "admin", "moderator"],
+    },
+    {
+      label: "AI Assistant",
+      href: "/dashboard/ai",
+      icon: "🤖",
+      roles: ["student", "organizer", "admin", "moderator"],
+    },
+    {
+      label: "Notifications",
+      href: "/notifications",
+      icon: "🔔",
+      roles: ["student", "organizer", "admin", "moderator"],
+    },
+    {
+      label: "Events",
+      href: "/events",
+      icon: "🎫",
+      roles: ["student", "organizer", "admin", "moderator"],
+    },
+    {
+      label: "Create Event",
+      href: "/dashboard/events/create",
+      icon: "✨",
+      roles: ["organizer", "admin"],
+    },
+    {
+      label: "Approve Events",
+      href: "/dashboard/events/approve",
+      icon: "✅",
+      roles: ["admin"],
+    },
+    {
+      label: "Verify Ticket",
+      href: "/dashboard/verify-ticket",
+      icon: "📷",
+      roles: ["organizer", "admin"],
+    },
+    {
+      label: "Organizer Panel",
+      href: "/dashboard/organizer",
+      icon: "🧭",
+      roles: ["organizer", "admin"],
+    },
+    {
+      label: "Problems",
+      href: "/problems",
+      icon: "🛠️",
+      roles: ["student", "organizer", "admin", "moderator"],
+    },
+    {
+      label: "Report Problem",
+      href: "/problems/create",
+      icon: "📌",
+      roles: ["student", "organizer", "admin", "moderator"],
+    },
+    {
+      label: "Manage Problems",
+      href: "/dashboard/problems/manage",
+      icon: "🧩",
+      roles: ["admin", "moderator"],
+    },
+    {
+      label: "Solutions",
+      href: "/dashboard/solutions",
+      icon: "💡",
+      roles: ["admin", "moderator"],
+    },
+    {
+      label: "Moderation Panel",
+      href: "/dashboard/moderator",
+      icon: "🛡️",
+      roles: ["moderator", "admin"],
+    },
+    {
+      label: "Admin Panel",
+      href: "/dashboard/admin",
+      icon: "⚙️",
+      roles: ["admin"],
+    },
+  ];
+
+  const visibleItems = menuItems.filter((item) => item.roles.includes(role));
+  const currentPath = window.location.pathname;
 
   return (
-    <aside className="h-fit rounded-3xl border border-slate-200 bg-white p-5 shadow-sm lg:sticky lg:top-24">
-      <div className="mb-5">
-        <p className="text-xs font-bold uppercase tracking-wider text-indigo-600">
-          Dashboard
-        </p>
-
-        <h2 className="mt-1 text-lg font-bold text-slate-950">
-          {user?.role || "User"} menu
-        </h2>
+    <aside className="cc-dashboard-menu">
+      <div className="cc-dashboard-menu-head">
+        <span>Control Room</span>
+        <h2>{role} menu</h2>
       </div>
 
-      <nav className="space-y-2">
-        {visibleLinks.map((link) => (
-          <NavLink
-            key={link.path}
-            to={link.path}
-            end={link.path === "/dashboard"}
-            className={({ isActive }) =>
-              `block rounded-xl px-4 py-3 text-sm font-semibold transition ${
-                isActive
-                  ? "bg-indigo-600 text-white"
-                  : "text-slate-700 hover:bg-slate-100"
-              }`
+      <div className="cc-dashboard-menu-grid">
+        {visibleItems.map((item) => (
+          <Link to={item.href}
+            key={item.label}
+            className={
+              currentPath === item.href
+                ? "cc-dashboard-menu-item active"
+                : "cc-dashboard-menu-item"
             }
           >
-            {link.label}
-          </NavLink>
+            <span className="cc-dashboard-menu-icon">{item.icon}</span>
+            <span>{item.label}</span>
+          </Link>
         ))}
-      </nav>
+      </div>
     </aside>
   );
 };

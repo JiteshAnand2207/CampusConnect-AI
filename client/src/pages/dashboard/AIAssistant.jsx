@@ -1,169 +1,122 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { askCampusAI } from "../../api/aiApi";
-
-const starterQuestions = [
-  "Which events are available right now?",
-  "Show me technical events.",
-  "What campus problems are still open?",
-  "Are there any WiFi related problems?",
-  "Which problems have accepted solutions?",
-];
+import api from "../../api/axios";
 
 const AIAssistant = () => {
-  const [question, setQuestion] = useState("");
   const [messages, setMessages] = useState([
     {
-      role: "assistant",
-      content:
-        "Hi, I am CampusConnect AI. Ask me about events, campus problems, solutions, tickets, or platform activity.",
-      sources: [],
+      from: "ai",
+      text: "Hi, I am your CampusConnect AI assistant. Ask me about events, problems, tickets, dashboards, or how to use this platform.",
     },
   ]);
-
+  const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
-  const askQuestion = async (text) => {
-    const cleanQuestion = text.trim();
+  const getAnswerText = (response) => {
+    return (
+      response?.data?.data?.answer ||
+      response?.data?.answer ||
+      response?.data?.message ||
+      "I am here to help you use CampusConnect AI."
+    );
+  };
 
+  const handleAsk = async (event) => {
+    event.preventDefault();
+
+    const cleanQuestion = question.trim();
     if (!cleanQuestion) return;
+
+    setMessages((prev) => [...prev, { from: "user", text: cleanQuestion }]);
+    setQuestion("");
 
     try {
       setLoading(true);
-      setError("");
+
+      const response = await api.post("/ai/ask", {
+        question: cleanQuestion,
+        message: cleanQuestion,
+        prompt: cleanQuestion,
+      });
 
       setMessages((prev) => [
         ...prev,
-        {
-          role: "user",
-          content: cleanQuestion,
-          sources: [],
-        },
+        { from: "ai", text: getAnswerText(response) },
       ]);
-
-      setQuestion("");
-
-      const response = await askCampusAI(cleanQuestion);
-
+    } catch (error) {
       setMessages((prev) => [
         ...prev,
         {
-          role: "assistant",
-          content: response.data.answer,
-          sources: response.data.sources || [],
+          from: "ai",
+          text:
+            error?.response?.data?.message ||
+            "AI assistant is currently unavailable. Please try again later.",
         },
       ]);
-    } catch (err) {
-      setError(err.response?.data?.message || "AI assistant failed");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    askQuestion(question);
-  };
+  const suggestions = [
+    "How do I register for an event?",
+    "How can I report a campus problem?",
+    "What can organizers do?",
+    "Explain this website quickly.",
+  ];
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-        <p className="text-sm font-semibold uppercase tracking-wider text-indigo-600">
-          CampusConnect AI
+    <main className="cc-ai-page">
+      <section className="cc-ai-page-hero">
+        <span>AI Assistant</span>
+        <h1>Ask CampusConnect AI</h1>
+        <p>
+          A smooth chat area for quick help about events, problem reports,
+          tickets, dashboards, and platform workflow.
         </p>
+      </section>
 
-        <h1 className="mt-2 text-3xl font-bold text-slate-950">
-          AI Assistant
-        </h1>
-
-        <p className="mt-3 max-w-3xl text-slate-600">
-          Ask questions about approved events, public campus problems,
-          solutions, and your own private reports. In mock mode, this confirms
-          the AI route and frontend connection are working.
-        </p>
-
-        <div className="mt-6 flex flex-wrap gap-3">
-          {starterQuestions.map((starter) => (
-            <button
-              key={starter}
-              type="button"
-              onClick={() => askQuestion(starter)}
-              className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+      <section className="cc-ai-chat-shell">
+        <div className="cc-ai-chat-window">
+          {messages.map((message, index) => (
+            <div
+              key={`${message.from}-${index}`}
+              className={
+                message.from === "user"
+                  ? "cc-ai-message user"
+                  : "cc-ai-message ai"
+              }
             >
-              {starter}
+              {message.text}
+            </div>
+          ))}
+
+          {loading && <div className="cc-ai-message ai">Thinking...</div>}
+        </div>
+
+        <div className="cc-ai-suggestions">
+          {suggestions.map((item) => (
+            <button
+              type="button"
+              key={item}
+              onClick={() => setQuestion(item)}
+            >
+              {item}
             </button>
           ))}
         </div>
-      </div>
 
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="max-h-[520px] space-y-4 overflow-y-auto pr-2">
-          {messages.map((message, index) => (
-            <div
-              key={`${message.role}-${index}`}
-              className={`rounded-3xl p-5 ${
-                message.role === "user"
-                  ? "ml-auto max-w-2xl bg-indigo-600 text-white"
-                  : "mr-auto max-w-3xl bg-slate-100 text-slate-800"
-              }`}
-            >
-              <p className="whitespace-pre-wrap leading-7">
-                {message.content}
-              </p>
-
-              {message.sources?.length > 0 && (
-                <div className="mt-4 rounded-2xl bg-white p-4 text-slate-800">
-                  <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
-                    Sources
-                  </p>
-
-                  <div className="mt-3 space-y-2">
-                    {message.sources.map((source, sourceIndex) => (
-                      <Link
-                        key={`${source.link}-${sourceIndex}`}
-                        to={source.link}
-                        className="block rounded-xl bg-slate-50 px-3 py-2 text-sm font-semibold text-indigo-600 hover:bg-indigo-50"
-                      >
-                        {source.type}: {source.title}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-
-          {loading && (
-            <div className="mr-auto max-w-3xl rounded-3xl bg-slate-100 p-5 text-slate-700">
-              Campus AI is thinking...
-            </div>
-          )}
-        </div>
-
-        {error && (
-          <div className="mt-5 rounded-xl bg-red-50 p-4 text-sm font-semibold text-red-600">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="mt-6 flex gap-3">
+        <form onSubmit={handleAsk} className="cc-ai-page-form">
           <input
             value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            placeholder="Ask about events, problems, solutions..."
-            className="min-w-0 flex-1 rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-indigo-500"
+            onChange={(event) => setQuestion(event.target.value)}
+            placeholder="Ask something about CampusConnect AI..."
           />
-
-          <button
-            disabled={loading}
-            className="rounded-xl bg-indigo-600 px-6 py-3 font-semibold text-white disabled:opacity-60"
-          >
-            Ask
+          <button type="submit" disabled={loading}>
+            {loading ? "Sending..." : "Send"}
           </button>
         </form>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 };
 
