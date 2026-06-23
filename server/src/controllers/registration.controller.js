@@ -4,7 +4,7 @@ import ApiError from "../utils/apiError.js";
 import ApiResponse from "../utils/apiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import generateTicketCode from "../utils/generateTicketCode.js";
-import createNotification from "../utils/createNotification.js";
+import { enqueueNotification } from "../utils/notificationQueue.js";
 
 export const registerForEvent = asyncHandler(async (req, res) => {
   const { eventId } = req.params;
@@ -65,7 +65,7 @@ export const registerForEvent = asyncHandler(async (req, res) => {
   const populatedRegistration = await Registration.findById(registration._id)
     .populate("event", "title category venue startDate endDate")
     .populate("student", "name email department year");
-await createNotification({
+await enqueueNotification({
   recipient: req.user._id,
   sender: req.user._id,
   title: "Event registration successful",
@@ -74,7 +74,7 @@ await createNotification({
   link: "/dashboard/tickets",
 });
 
-await createNotification({
+await enqueueNotification({
   recipient: event.createdBy,
   sender: req.user._id,
   title: "New event registration",
@@ -182,7 +182,7 @@ export const verifyTicket = asyncHandler(async (req, res) => {
   registration.checkedInBy = req.user._id;
 
   await registration.save();
-await createNotification({
+await enqueueNotification({
   recipient: registration.student._id,
   sender: req.user._id,
   title: "Ticket verified",

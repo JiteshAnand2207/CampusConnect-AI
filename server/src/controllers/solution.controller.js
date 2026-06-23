@@ -3,7 +3,7 @@ import Solution from "../models/solution.model.js";
 import ApiError from "../utils/apiError.js";
 import ApiResponse from "../utils/apiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
-import createNotification from "../utils/createNotification.js";
+import { enqueueNotification } from "../utils/notificationQueue.js";
 export const createSolution = asyncHandler(async (req, res) => {
   const { problemId } = req.params;
   const { description, attachments } = req.body;
@@ -37,7 +37,7 @@ export const createSolution = asyncHandler(async (req, res) => {
     "postedBy",
     "name email role department year"
   );
-await createNotification({
+await enqueueNotification({
   recipient: problem.postedBy,
   sender: req.user._id,
   title: "New solution posted",
@@ -106,7 +106,7 @@ export const acceptSolution = asyncHandler(async (req, res) => {
   problem.acceptedSolution = solution._id;
   problem.status = "resolved";
   await problem.save();
-await createNotification({
+await enqueueNotification({
   recipient: solution.postedBy,
   sender: req.user._id,
   title: "Solution accepted",

@@ -2,7 +2,12 @@ import Problem from "../models/problem.model.js";
 import ApiError from "../utils/apiError.js";
 import ApiResponse from "../utils/apiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
-import createNotification from "../utils/createNotification.js";
+import { enqueueNotification } from "../utils/notificationQueue.js";
+import {
+  deleteCacheByPattern,
+  getCache,
+  setCache,
+} from "../utils/cache.js";
 export const createProblem = asyncHandler(async (req, res) => {
   const { title, description, category, visibility, tags, attachments } =
     req.body;
@@ -20,7 +25,8 @@ export const createProblem = asyncHandler(async (req, res) => {
     attachments,
     postedBy: req.user._id,
   });
- await createNotification({
+  await deleteCacheByPattern("problems:public:*");
+await enqueueNotification({ 
   recipient: problem.postedBy,
   sender: req.user._id,
   title: "Problem status updated",
@@ -39,7 +45,15 @@ export const getPublicProblems = asyncHandler(async (req, res) => {
   const query = {
     visibility: "public",
   };
+const cacheKey = `problems:public:${JSON.stringify(req.query)}`;
 
+const cachedProblems = await getCache(cacheKey);
+
+if (cachedProblems) {
+  return res
+    .status(200)
+    .json(new ApiResponse(200, cachedProblems, "Public problems fetched from cache"));
+}
   if (category) {
     query.category = category;
   }
@@ -60,6 +74,8 @@ export const getPublicProblems = asyncHandler(async (req, res) => {
     .populate("postedBy", "name email role department year")
     .populate("acceptedSolution")
     .sort({ createdAt: -1 });
+
+  await setCache(cacheKey, problems);
 
   return res
     .status(200)
@@ -158,7 +174,7 @@ export const updateProblemStatus = asyncHandler(async (req, res) => {
   }
 
   await problem.save();
-
+await deleteCacheByPattern("problems:public:*");
   return res
     .status(200)
     .json(new ApiResponse(200, problem, "Problem status updated"));
@@ -190,7 +206,7 @@ export const toggleProblemUpvote = asyncHandler(async (req, res) => {
   }
 
   await problem.save();
-
+  await deleteCacheByPattern("problems:public:*");
   return res.status(200).json(
     new ApiResponse(
       200,

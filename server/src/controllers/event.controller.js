@@ -2,7 +2,12 @@ import Event from "../models/event.model.js";
 import ApiError from "../utils/apiError.js";
 import ApiResponse from "../utils/apiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
-import createNotification from "../utils/createNotification.js";
+import { enqueueNotification } from "../utils/notificationQueue.js";
+import {
+  deleteCacheByPattern,
+  getCache,
+  setCache,
+} from "../utils/cache.js";
 export const createEvent = asyncHandler(async (req, res) => {
   const {
     title,
@@ -54,7 +59,15 @@ export const getAllEvents = asyncHandler(async (req, res) => {
   const { category, department, search, status } = req.query;
 
   const query = {};
+  const cacheKey = `events:public:${JSON.stringify(req.query)}:${req.user?.role || "guest"}`;
 
+const cachedEvents = await getCache(cacheKey);
+
+if (cachedEvents) {
+  return res
+    .status(200)
+    .json(new ApiResponse(200, cachedEvents, "Events fetched from cache"));
+}
   if (req.user?.role === "admin" || req.user?.role === "moderator") {
     if (status) {
       query.status = status;
@@ -82,7 +95,11 @@ export const getAllEvents = asyncHandler(async (req, res) => {
   const events = await Event.find(query)
     .populate("createdBy", "name email role department")
     .sort({ startDate: 1 });
+await setCache(cacheKey, events);
 
+return res
+  .status(200)
+  .json(new ApiResponse(200, events, "Events fetched successfully"));
   return res
     .status(200)
     .json(new ApiResponse(200, events, "Events fetched successfully"));
@@ -186,7 +203,7 @@ export const approveEvent = asyncHandler(async (req, res) => {
   event.approvedAt = new Date();
 
   await event.save();
-  await createNotification({
+await enqueueNotification({
   recipient: event.createdBy,
   sender: req.user._id,
   title: "Event approved",
@@ -214,7 +231,8 @@ export const rejectEvent = asyncHandler(async (req, res) => {
   event.approvedAt = undefined;
 
   await event.save();
-await createNotification({
+  await deleteCacheByPattern("events:public:*");
+await enqueueNotification({
   recipient: event.createdBy,
   sender: req.user._id,
   title: "Event rejected",
