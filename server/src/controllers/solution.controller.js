@@ -3,7 +3,7 @@ import Solution from "../models/solution.model.js";
 import ApiError from "../utils/apiError.js";
 import ApiResponse from "../utils/apiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
-
+import createNotification from "../utils/createNotification.js";
 export const createSolution = asyncHandler(async (req, res) => {
   const { problemId } = req.params;
   const { description, attachments } = req.body;
@@ -37,7 +37,14 @@ export const createSolution = asyncHandler(async (req, res) => {
     "postedBy",
     "name email role department year"
   );
-
+await createNotification({
+  recipient: problem.postedBy,
+  sender: req.user._id,
+  title: "New solution posted",
+  message: `${req.user.name} posted a solution on your problem "${problem.title}".`,
+  type: "solution",
+  link: `/problems/${problem._id}`,
+});
   return res
     .status(201)
     .json(new ApiResponse(201, populatedSolution, "Solution posted"));
@@ -99,7 +106,14 @@ export const acceptSolution = asyncHandler(async (req, res) => {
   problem.acceptedSolution = solution._id;
   problem.status = "resolved";
   await problem.save();
-
+await createNotification({
+  recipient: solution.postedBy,
+  sender: req.user._id,
+  title: "Solution accepted",
+  message: `Your solution was accepted for the problem "${problem.title}".`,
+  type: "solution",
+  link: `/problems/${problem._id}`,
+});
   const populatedSolution = await Solution.findById(solution._id).populate(
     "postedBy",
     "name email role department year"

@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-
+import { useEffect, useState } from "react";
+import { getUnreadNotificationCount } from "../../api/notificationApi";
 const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
@@ -9,6 +10,30 @@ const Navbar = () => {
     await logout();
     navigate("/login");
   };
+
+  const [unreadCount, setUnreadCount] = useState(0);
+
+useEffect(() => {
+  const fetchUnreadCount = async () => {
+    if (!isAuthenticated) {
+      setUnreadCount(0);
+      return;
+    }
+
+    try {
+      const response = await getUnreadNotificationCount();
+      setUnreadCount(response.data.count || 0);
+    } catch (error) {
+      setUnreadCount(0);
+    }
+  };
+
+  fetchUnreadCount();
+
+  const intervalId = setInterval(fetchUnreadCount, 30000);
+
+  return () => clearInterval(intervalId);
+}, [isAuthenticated, location.pathname]);
 
   return (
     <nav className="border-b border-slate-200 bg-white">
@@ -34,6 +59,17 @@ const Navbar = () => {
               >
                 Dashboard
               </Link>
+              <Link
+  to="/dashboard/notifications"
+  className="relative text-sm font-medium text-slate-700"
+>
+  Notifications
+  {unreadCount > 0 && (
+    <span className="ml-2 rounded-full bg-red-600 px-2 py-0.5 text-xs font-bold text-white">
+      {unreadCount}
+    </span>
+  )}
+</Link>
 
               <span className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700">
                 {user?.role}

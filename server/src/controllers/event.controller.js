@@ -2,7 +2,7 @@ import Event from "../models/event.model.js";
 import ApiError from "../utils/apiError.js";
 import ApiResponse from "../utils/apiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
-
+import createNotification from "../utils/createNotification.js";
 export const createEvent = asyncHandler(async (req, res) => {
   const {
     title,
@@ -186,7 +186,14 @@ export const approveEvent = asyncHandler(async (req, res) => {
   event.approvedAt = new Date();
 
   await event.save();
-
+  await createNotification({
+  recipient: event.createdBy,
+  sender: req.user._id,
+  title: "Event approved",
+  message: `Your event "${event.title}" has been approved and is now public.`,
+  type: "event",
+  link: `/events/${event._id}`,
+});
   return res
     .status(200)
     .json(new ApiResponse(200, event, "Event approved successfully"));
@@ -207,7 +214,14 @@ export const rejectEvent = asyncHandler(async (req, res) => {
   event.approvedAt = undefined;
 
   await event.save();
-
+await createNotification({
+  recipient: event.createdBy,
+  sender: req.user._id,
+  title: "Event rejected",
+  message: `Your event "${event.title}" was rejected. Reason: ${event.rejectionReason}`,
+  type: "event",
+  link: `/dashboard/events`,
+});
   return res
     .status(200)
     .json(new ApiResponse(200, event, "Event rejected successfully"));

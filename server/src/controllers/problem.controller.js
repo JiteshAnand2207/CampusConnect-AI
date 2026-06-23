@@ -2,7 +2,7 @@ import Problem from "../models/problem.model.js";
 import ApiError from "../utils/apiError.js";
 import ApiResponse from "../utils/apiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
-
+import createNotification from "../utils/createNotification.js";
 export const createProblem = asyncHandler(async (req, res) => {
   const { title, description, category, visibility, tags, attachments } =
     req.body;
@@ -20,7 +20,14 @@ export const createProblem = asyncHandler(async (req, res) => {
     attachments,
     postedBy: req.user._id,
   });
-
+ await createNotification({
+  recipient: problem.postedBy,
+  sender: req.user._id,
+  title: "Problem status updated",
+  message: `Your problem "${problem.title}" status changed to ${problem.status}.`,
+  type: "problem",
+  link: `/problems/${problem._id}`,
+});
   return res
     .status(201)
     .json(new ApiResponse(201, problem, "Problem created successfully"));

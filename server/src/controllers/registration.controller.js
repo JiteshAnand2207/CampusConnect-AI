@@ -4,6 +4,7 @@ import ApiError from "../utils/apiError.js";
 import ApiResponse from "../utils/apiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import generateTicketCode from "../utils/generateTicketCode.js";
+import createNotification from "../utils/createNotification.js";
 
 export const registerForEvent = asyncHandler(async (req, res) => {
   const { eventId } = req.params;
@@ -64,7 +65,23 @@ export const registerForEvent = asyncHandler(async (req, res) => {
   const populatedRegistration = await Registration.findById(registration._id)
     .populate("event", "title category venue startDate endDate")
     .populate("student", "name email department year");
+await createNotification({
+  recipient: req.user._id,
+  sender: req.user._id,
+  title: "Event registration successful",
+  message: `You registered for "${event.title}". Your ticket has been generated.`,
+  type: "registration",
+  link: "/dashboard/tickets",
+});
 
+await createNotification({
+  recipient: event.createdBy,
+  sender: req.user._id,
+  title: "New event registration",
+  message: `${req.user.name} registered for your event "${event.title}".`,
+  type: "registration",
+  link: "/dashboard/events",
+});
   return res
     .status(201)
     .json(
@@ -165,7 +182,14 @@ export const verifyTicket = asyncHandler(async (req, res) => {
   registration.checkedInBy = req.user._id;
 
   await registration.save();
-
+await createNotification({
+  recipient: registration.student._id,
+  sender: req.user._id,
+  title: "Ticket verified",
+  message: `Your attendance for "${registration.event.title}" has been marked.`,
+  type: "ticket",
+  link: "/dashboard/tickets",
+});
   return res
     .status(200)
     .json(new ApiResponse(200, registration, "Ticket verified successfully"));

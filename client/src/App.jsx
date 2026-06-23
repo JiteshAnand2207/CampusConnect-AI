@@ -1,7 +1,5 @@
 import { Route, Routes } from "react-router-dom";
-import ProblemDetails from "./pages/ProblemDetails";
-import CreateProblem from "./pages/dashboard/CreateProblem";
-import AdminProblems from "./pages/dashboard/AdminProblems";
+
 import Navbar from "./components/layout/Navbar";
 import DashboardLayout from "./components/layout/DashboardLayout";
 import ProtectedRoute from "./components/protected/ProtectedRoute";
@@ -10,6 +8,7 @@ import Home from "./pages/Home";
 import Events from "./pages/Events";
 import EventDetails from "./pages/EventDetails";
 import Problems from "./pages/Problems";
+import ProblemDetails from "./pages/ProblemDetails";
 
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
@@ -25,6 +24,9 @@ import AdminPanel from "./pages/dashboard/AdminPanel";
 import CreateEvent from "./pages/dashboard/CreateEvent";
 import AdminEvents from "./pages/dashboard/AdminEvents";
 import VerifyTicket from "./pages/dashboard/VerifyTicket";
+import CreateProblem from "./pages/dashboard/CreateProblem";
+import AdminProblems from "./pages/dashboard/AdminProblems";
+import Notifications from "./pages/dashboard/Notifications";
 
 const App = () => {
   return (
@@ -33,12 +35,23 @@ const App = () => {
 
       <Routes>
         <Route path="/" element={<Home />} />
+
         <Route path="/events" element={<Events />} />
         <Route path="/events/:id" element={<EventDetails />} />
+
         <Route path="/problems" element={<Problems />} />
+        <Route
+          path="/problems/:id"
+          element={
+            <ProtectedRoute>
+              <ProblemDetails />
+            </ProtectedRoute>
+          }
+        />
+
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/problems/:id" element={<ProblemDetails />} />
+
         <Route
           path="/dashboard"
           element={
@@ -48,6 +61,8 @@ const App = () => {
           }
         >
           <Route index element={<Dashboard />} />
+
+          <Route path="notifications" element={<Notifications />} />
 
           <Route path="events" element={<DashboardEvents />} />
 
@@ -61,6 +76,27 @@ const App = () => {
           />
 
           <Route path="problems" element={<DashboardProblems />} />
+
+          <Route
+            path="problems/create"
+            element={
+              <ProtectedRoute
+                allowedRoles={["student", "organizer", "moderator", "admin"]}
+              >
+                <CreateProblem />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="admin/problems"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "moderator"]}>
+                <AdminProblems />
+              </ProtectedRoute>
+            }
+          />
+
           <Route path="solutions" element={<DashboardSolutions />} />
 
           <Route
@@ -116,25 +152,6 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-          <Route
-  path="problems/create"
-  element={
-    <ProtectedRoute
-      allowedRoles={["student", "organizer", "moderator", "admin"]}
-    >
-      <CreateProblem />
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="admin/problems"
-  element={
-    <ProtectedRoute allowedRoles={["admin", "moderator"]}>
-      <AdminProblems />
-    </ProtectedRoute>
-  }
-/>
         </Route>
       </Routes>
     </>
