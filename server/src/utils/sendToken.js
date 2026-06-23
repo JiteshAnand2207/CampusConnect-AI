@@ -4,11 +4,11 @@ const sendToken = (user, statusCode, res, message) => {
   const token = user.generateAccessToken();
 
   const cookieOptions = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    maxAge: 24 * 60 * 60 * 1000,
-  };
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+  maxAge: 24 * 60 * 60 * 1000,
+};
 
   return res
     .status(statusCode)
