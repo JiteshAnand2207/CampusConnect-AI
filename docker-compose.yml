@@ -1,0 +1,57 @@
+services:
+  backend:
+    build:
+      context: ./server
+    container_name: campusconnect-backend
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./server/.env
+    environment:
+      - REDIS_ENABLED=true
+      - REDIS_URL=redis://redis:6379
+      - CACHE_TTL_SECONDS=300
+      - NODE_ENV=development
+    volumes:
+      - campusconnect_uploads:/app/uploads
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: ./server
+    container_name: campusconnect-worker
+    command: npm run worker
+    env_file:
+      - ./server/.env
+    environment:
+      - REDIS_ENABLED=true
+      - REDIS_URL=redis://redis:6379
+      - NODE_ENV=development
+    depends_on:
+      - redis
+      - backend
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./client
+      args:
+        VITE_API_BASE_URL: http://localhost:5000/api
+    container_name: campusconnect-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: campusconnect-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+volumes:
+  campusconnect_uploads:
