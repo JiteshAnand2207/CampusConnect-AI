@@ -147,6 +147,13 @@ const QuickActions = ({ role }) => {
         >
           Verify Ticket
         </Link>
+
+        <Link
+  to="/dashboard/problems/create"
+  className="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+>
+  Report Problem
+</Link>
       </div>
     );
   }
@@ -174,6 +181,20 @@ const QuickActions = ({ role }) => {
         >
           Verify Ticket
         </Link>
+
+        <Link
+  to="/dashboard/problems/create"
+  className="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+>
+  Report Problem
+</Link>
+
+      <Link
+  to="/dashboard/admin/problems"
+  className="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+>
+  Manage Problems
+</Link>
       </div>
     );
   }
@@ -194,6 +215,13 @@ const QuickActions = ({ role }) => {
         >
           My Tickets
         </Link>
+
+        <Link
+  to="/dashboard/problems/create"
+  className="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+>
+  Report Problem
+</Link>
       </div>
     );
   }

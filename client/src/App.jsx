@@ -1,5 +1,7 @@
 import { Route, Routes } from "react-router-dom";
-
+import ProblemDetails from "./pages/ProblemDetails";
+import CreateProblem from "./pages/dashboard/CreateProblem";
+import AdminProblems from "./pages/dashboard/AdminProblems";
 import Navbar from "./components/layout/Navbar";
 import DashboardLayout from "./components/layout/DashboardLayout";
 import ProtectedRoute from "./components/protected/ProtectedRoute";
@@ -36,7 +38,7 @@ const App = () => {
         <Route path="/problems" element={<Problems />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-
+        <Route path="/problems/:id" element={<ProblemDetails />} />
         <Route
           path="/dashboard"
           element={
@@ -114,6 +116,25 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+          <Route
+  path="problems/create"
+  element={
+    <ProtectedRoute
+      allowedRoles={["student", "organizer", "moderator", "admin"]}
+    >
+      <CreateProblem />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="admin/problems"
+  element={
+    <ProtectedRoute allowedRoles={["admin", "moderator"]}>
+      <AdminProblems />
+    </ProtectedRoute>
+  }
+/>
         </Route>
       </Routes>
     </>

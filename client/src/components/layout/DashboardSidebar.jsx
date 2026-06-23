@@ -37,6 +37,16 @@ const Dashboard = () => {
       value: "0",
       description: "Campus problems reported or assigned to you.",
     },
+    {
+  label: "Report Problem",
+  path: "/dashboard/problems/create",
+  roles: ["student", "organizer", "moderator", "admin"],
+},
+{
+  label: "Manage Problems",
+  path: "/dashboard/admin/problems",
+  roles: ["admin", "moderator"],
+},
   ];
 
   return (
