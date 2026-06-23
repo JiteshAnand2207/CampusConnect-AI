@@ -7,6 +7,8 @@ import registrationRoutes from "./routes/registration.routes.js";
 import healthRoutes from "./routes/health.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
+import problemRoutes from "./routes/problem.routes.js";
+import solutionRoutes from "./routes/solution.routes.js";
 
 const app = express();
 
@@ -43,6 +45,8 @@ app.use("/api/health", healthRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/registrations", registrationRoutes);
+app.use("/api/problems", problemRoutes);
+app.use("/api/solutions", solutionRoutes);
 app.use(errorMiddleware);
 
 export default app;
