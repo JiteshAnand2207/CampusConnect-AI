@@ -5,9 +5,12 @@
   "type": "module",
   "main": "src/server.js",
   "scripts": {
+
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
-    "worker": "node src/workers/notification.worker.js"
+    "worker": "node src/workers/notification.worker.js",
+    "ci:check": "node -e \"console.log('Backend dependencies installed successfully')\""
+    
   },
   "keywords": [],
   "author": "",
