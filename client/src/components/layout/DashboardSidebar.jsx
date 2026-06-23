@@ -8,6 +8,11 @@ const baseLinks = [
     roles: ["student", "organizer", "moderator", "admin"],
   },
   {
+  label: "AI Assistant",
+  path: "/dashboard/ai",
+  roles: ["student", "organizer", "moderator", "admin"],
+},
+  {
     label: "Notifications",
     path: "/dashboard/notifications",
     roles: ["student", "organizer", "moderator", "admin"],

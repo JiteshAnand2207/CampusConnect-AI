@@ -10,7 +10,7 @@ import errorMiddleware from "./middlewares/error.middleware.js";
 import problemRoutes from "./routes/problem.routes.js";
 import solutionRoutes from "./routes/solution.routes.js";
 import notificationRoutes from "./routes/notification.routes.js";
-
+import aiRoutes from "./routes/ai.routes.js";
 const app = express();
 
 const allowedOrigins = [
@@ -49,6 +49,7 @@ app.use("/api/registrations", registrationRoutes);
 app.use("/api/problems", problemRoutes);
 app.use("/api/solutions", solutionRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/ai", aiRoutes);
 app.use(errorMiddleware);
 
 export default app;

@@ -50,7 +50,12 @@ useEffect(() => {
           <Link to="/problems" className="text-sm font-medium text-slate-700">
             Problems
           </Link>
-
+          <Link
+  to="/dashboard/ai"
+  className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-600"
+>
+  AI Assistant
+</Link>
           {isAuthenticated ? (
             <>
               <Link
@@ -87,7 +92,14 @@ useEffect(() => {
               <Link to="/login" className="text-sm font-medium text-slate-700">
                 Login
               </Link>
-
+{isAuthenticated && (
+  <Link
+    to="/dashboard/ai"
+    className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-600"
+  >
+    AI Assistant
+  </Link>
+)}
               <Link
                 to="/register"
                 className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white"

@@ -27,12 +27,13 @@ import VerifyTicket from "./pages/dashboard/VerifyTicket";
 import CreateProblem from "./pages/dashboard/CreateProblem";
 import AdminProblems from "./pages/dashboard/AdminProblems";
 import Notifications from "./pages/dashboard/Notifications";
-
+import AIAssistant from "./pages/dashboard/AIAssistant";
+import FloatingAIAssistant from "./components/ai/FloatingAIAssistant";
 const App = () => {
   return (
     <>
       <Navbar />
-
+      <FloatingAIAssistant />
       <Routes>
         <Route path="/" element={<Home />} />
 
