@@ -1,42 +1,42 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+
 import { getEventById } from "../api/eventApi";
+import { registerForEvent } from "../api/registrationApi";
 import StatusBadge from "../components/event/StatusBadge";
 import { useAuth } from "../context/AuthContext";
-import { registerForEvent } from "../api/registrationApi";
+
+const getFileUrl = (url) => {
+  if (!url) return "";
+
+  if (url.startsWith("http://localhost:5000")) {
+    return url.replace("http://localhost:5000", "");
+  }
+
+  if (url.startsWith("https://localhost:5000")) {
+    return url.replace("https://localhost:5000", "");
+  }
+
+  if (url.startsWith("http://127.0.0.1:5000")) {
+    return url.replace("http://127.0.0.1:5000", "");
+  }
+
+  if (url.startsWith("https://127.0.0.1:5000")) {
+    return url.replace("https://127.0.0.1:5000", "");
+  }
+
+  return url;
+};
 
 const EventDetails = () => {
-  const handleRegister = async () => {
-  try {
-    setRegisterLoading(true);
-    setRegisterMessage("");
-
-    if (!isAuthenticated) {
-      setRegisterMessage("Please login as a student to register.");
-      return;
-    }
-
-    if (user?.role !== "student") {
-      setRegisterMessage("Only students can register for events.");
-      return;
-    }
-
-    await registerForEvent(event._id);
-    setRegisterMessage("Registered successfully. Your ticket is available in dashboard.");
-    fetchEvent();
-  } catch (err) {
-    setRegisterMessage(err.response?.data?.message || "Registration failed");
-  } finally {
-    setRegisterLoading(false);
-  }
-};const { user, isAuthenticated } = useAuth();
-const [registerLoading, setRegisterLoading] = useState(false);
-const [registerMessage, setRegisterMessage] = useState("");
   const { id } = useParams();
+  const { user, isAuthenticated } = useAuth();
 
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [registerLoading, setRegisterLoading] = useState(false);
+  const [registerMessage, setRegisterMessage] = useState("");
 
   const fetchEvent = async () => {
     try {
@@ -56,6 +56,35 @@ const [registerMessage, setRegisterMessage] = useState("");
     fetchEvent();
   }, [id]);
 
+  const handleRegister = async () => {
+    try {
+      setRegisterLoading(true);
+      setRegisterMessage("");
+
+      if (!isAuthenticated) {
+        setRegisterMessage("Please login as a student to register.");
+        return;
+      }
+
+      if (user?.role !== "student") {
+        setRegisterMessage("Only students can register for events.");
+        return;
+      }
+
+      await registerForEvent(event._id);
+
+      setRegisterMessage(
+        "Registered successfully. Your ticket is available in dashboard."
+      );
+
+      fetchEvent();
+    } catch (err) {
+      setRegisterMessage(err.response?.data?.message || "Registration failed");
+    } finally {
+      setRegisterLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <main className="flex min-h-[calc(100vh-73px)] items-center justify-center bg-slate-50">
@@ -64,11 +93,14 @@ const [registerMessage, setRegisterMessage] = useState("");
     );
   }
 
-  if (error) {
+  if (error || !event) {
     return (
       <main className="min-h-[calc(100vh-73px)] bg-slate-50 px-4 py-10">
         <section className="mx-auto max-w-4xl rounded-3xl border border-red-100 bg-white p-8 shadow-sm">
-          <p className="font-semibold text-red-600">{error}</p>
+          <p className="font-semibold text-red-600">
+            {error || "Event not found"}
+          </p>
+
           <Link
             to="/events"
             className="mt-5 inline-flex rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white"
@@ -80,15 +112,22 @@ const [registerMessage, setRegisterMessage] = useState("");
     );
   }
 
-  const startDate = new Date(event.startDate).toLocaleString("en-IN", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
+  const bannerImage = getFileUrl(event.bannerImage);
+  const brochureUrl = getFileUrl(event.brochureUrl);
 
-  const endDate = new Date(event.endDate).toLocaleString("en-IN", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
+  const startDate = event.startDate
+    ? new Date(event.startDate).toLocaleString("en-IN", {
+        dateStyle: "medium",
+        timeStyle: "short",
+      })
+    : "Date not available";
+
+  const endDate = event.endDate
+    ? new Date(event.endDate).toLocaleString("en-IN", {
+        dateStyle: "medium",
+        timeStyle: "short",
+      })
+    : "Date not available";
 
   return (
     <main className="min-h-[calc(100vh-73px)] bg-slate-50 px-4 py-10">
@@ -100,43 +139,45 @@ const [registerMessage, setRegisterMessage] = useState("");
         <article className="mt-5 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
           <div className="flex flex-wrap items-center gap-3">
             <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-bold uppercase text-indigo-600">
-              {event.category}
+              {event.category || "event"}
             </span>
+
             <StatusBadge status={event.status} />
           </div>
 
           <h1 className="mt-5 text-4xl font-extrabold text-slate-950">
             {event.title}
           </h1>
-          {event.bannerImage && (
-  <img
-    src={`http://localhost:5000${event.bannerImage}`}
-    alt={event.title}
-    className="mt-6 h-80 w-full rounded-3xl object-cover"
-  />
-)}
 
-{event.brochureUrl && (
-  <a
-    href={`http://localhost:5000${event.brochureUrl}`}
-    target="_blank"
-    rel="noreferrer"
-    className="mt-6 inline-flex rounded-xl bg-slate-900 px-5 py-3 font-semibold text-white"
-  >
-    View brochure
-  </a>
-)}
+          {bannerImage && (
+            <img
+              src={bannerImage}
+              alt={event.title}
+              className="mt-6 h-80 w-full rounded-3xl object-cover"
+            />
+          )}
+
+          {brochureUrl && (
+            <a
+              href={brochureUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-6 inline-flex rounded-xl bg-slate-900 px-5 py-3 font-semibold text-white"
+            >
+              View brochure
+            </a>
+          )}
 
           <p className="mt-5 leading-8 text-slate-600">{event.description}</p>
 
           <div className="mt-8 grid gap-4 md:grid-cols-2">
-            <Info label="Venue" value={event.venue} />
+            <Info label="Venue" value={event.venue || "N/A"} />
             <Info label="Department" value={event.department || "All"} />
             <Info label="Starts" value={startDate} />
             <Info label="Ends" value={endDate} />
             <Info
               label="Capacity"
-              value={`${event.registeredCount}/${event.capacity}`}
+              value={`${event.registeredCount || 0}/${event.capacity || 0}`}
             />
             <Info label="Created by" value={event.createdBy?.name || "N/A"} />
           </div>
@@ -144,6 +185,7 @@ const [registerMessage, setRegisterMessage] = useState("");
           {event.tags?.length > 0 && (
             <div className="mt-8">
               <h2 className="font-bold text-slate-950">Tags</h2>
+
               <div className="mt-3 flex flex-wrap gap-2">
                 {event.tags.map((tag) => (
                   <span
@@ -158,22 +200,18 @@ const [registerMessage, setRegisterMessage] = useState("");
           )}
 
           <button
-  onClick={handleRegister}
-  disabled={registerLoading || event.status !== "approved"}
-  className="mt-8 rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
->
-  {registerLoading ? "Registering..." : "Register for event"}
-</button>
+            onClick={handleRegister}
+            disabled={registerLoading || event.status !== "approved"}
+            className="mt-8 rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {registerLoading ? "Registering..." : "Register for event"}
+          </button>
 
-{registerMessage && (
-  <div className="mt-4 rounded-xl bg-slate-100 p-4 text-sm font-semibold text-slate-700">
-    {registerMessage}
-  </div>
-)}
-
-          <p className="mt-3 text-sm text-slate-500">
-            Registration will be connected in the QR ticket phase.
-          </p>
+          {registerMessage && (
+            <div className="mt-4 rounded-xl bg-slate-100 p-4 text-sm font-semibold text-slate-700">
+              {registerMessage}
+            </div>
+          )}
         </article>
       </section>
     </main>

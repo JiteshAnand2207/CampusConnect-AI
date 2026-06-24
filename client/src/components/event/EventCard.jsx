@@ -1,14 +1,31 @@
 import { Link } from "react-router-dom";
 import StatusBadge from "./StatusBadge";
 
-const BACKEND_URL = "http://localhost:5000";
+const getFileUrl = (url) => {
+  if (!url) return "";
+
+  if (url.startsWith("http://localhost:5000")) {
+    return url.replace("http://localhost:5000", "");
+  }
+
+  if (url.startsWith("https://localhost:5000")) {
+    return url.replace("https://localhost:5000", "");
+  }
+
+  if (url.startsWith("http://127.0.0.1:5000")) {
+    return url.replace("http://127.0.0.1:5000", "");
+  }
+
+  if (url.startsWith("https://127.0.0.1:5000")) {
+    return url.replace("https://127.0.0.1:5000", "");
+  }
+
+  return url;
+};
 
 const EventCard = ({ event }) => {
-  const getFileUrl = (url) => {
-    if (!url) return "";
-    if (url.startsWith("http")) return url;
-    return `${BACKEND_URL}${url}`;
-  };
+  const imageUrl = getFileUrl(event.bannerImage);
+  const brochureUrl = getFileUrl(event.brochureUrl);
 
   const startDate = event.startDate
     ? new Date(event.startDate).toLocaleString("en-IN", {
@@ -22,9 +39,9 @@ const EventCard = ({ event }) => {
 
   return (
     <article className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md">
-      {event.bannerImage && (
+      {imageUrl && (
         <img
-          src={getFileUrl(event.bannerImage)}
+          src={imageUrl}
           alt={event.title}
           className="h-48 w-full object-cover"
         />
@@ -97,9 +114,9 @@ const EventCard = ({ event }) => {
             View details
           </Link>
 
-          {event.brochureUrl && (
+          {brochureUrl && (
             <a
-              href={getFileUrl(event.brochureUrl)}
+              href={brochureUrl}
               target="_blank"
               rel="noreferrer"
               className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
