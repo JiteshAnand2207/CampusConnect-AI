@@ -1,5 +1,27 @@
+import fs from "fs";
+import cloudinary from "../config/cloudinary.js";
 import ApiResponse from "../utils/apiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
+
+const uploadToCloudinary = async (filePath, folder = "campusconnect-ai") => {
+  const result = await cloudinary.uploader.upload(filePath, {
+    folder,
+    resource_type: "auto",
+  });
+
+  fs.unlink(filePath, (error) => {
+    if (error) {
+      console.error("Local temp file cleanup failed:", error.message);
+    }
+  });
+
+  return {
+    url: result.secure_url,
+    publicId: result.public_id,
+    resourceType: result.resource_type,
+    format: result.format,
+  };
+};
 
 export const uploadFile = asyncHandler(async (req, res) => {
   if (!req.file) {
@@ -9,13 +31,18 @@ export const uploadFile = asyncHandler(async (req, res) => {
     });
   }
 
+  const uploaded = await uploadToCloudinary(req.file.path);
+
   const fileData = {
     filename: req.file.filename,
     originalName: req.file.originalname,
     mimeType: req.file.mimetype,
     mimetype: req.file.mimetype,
     size: req.file.size,
-    url: `/uploads/${req.file.filename}`,
+    url: uploaded.url,
+    publicId: uploaded.publicId,
+    resourceType: uploaded.resourceType,
+    format: uploaded.format,
   };
 
   return res
@@ -33,14 +60,23 @@ export const uploadMultipleFiles = asyncHandler(async (req, res) => {
     });
   }
 
-  const files = req.files.map((file) => ({
-    filename: file.filename,
-    originalName: file.originalname,
-    mimeType: file.mimetype,
-    mimetype: file.mimetype,
-    size: file.size,
-    url: `/uploads/${file.filename}`,
-  }));
+  const files = await Promise.all(
+    req.files.map(async (file) => {
+      const uploaded = await uploadToCloudinary(file.path);
+
+      return {
+        filename: file.filename,
+        originalName: file.originalname,
+        mimeType: file.mimetype,
+        mimetype: file.mimetype,
+        size: file.size,
+        url: uploaded.url,
+        publicId: uploaded.publicId,
+        resourceType: uploaded.resourceType,
+        format: uploaded.format,
+      };
+    })
+  );
 
   return res
     .status(200)
