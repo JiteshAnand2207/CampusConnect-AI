@@ -1,4 +1,3 @@
-import ApiError from "../utils/apiError.js";
 import ApiResponse from "../utils/apiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
@@ -14,6 +13,7 @@ export const uploadFile = asyncHandler(async (req, res) => {
     filename: req.file.filename,
     originalName: req.file.originalname,
     mimeType: req.file.mimetype,
+    mimetype: req.file.mimetype,
     size: req.file.size,
     url: `/uploads/${req.file.filename}`,
   };
@@ -22,6 +22,8 @@ export const uploadFile = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, fileData, "File uploaded successfully"));
 });
+
+export const uploadSingleFile = uploadFile;
 
 export const uploadMultipleFiles = asyncHandler(async (req, res) => {
   if (!req.files || req.files.length === 0) {
@@ -32,11 +34,12 @@ export const uploadMultipleFiles = asyncHandler(async (req, res) => {
   }
 
   const files = req.files.map((file) => ({
-    url: `/uploads/${file.filename}`,
     filename: file.filename,
     originalName: file.originalname,
+    mimeType: file.mimetype,
     mimetype: file.mimetype,
     size: file.size,
+    url: `/uploads/${file.filename}`,
   }));
 
   return res
