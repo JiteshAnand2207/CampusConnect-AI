@@ -88,14 +88,33 @@ const App = () => {
         />
 
         {/* Admin */}
-        <Route
-          path="/dashboard/admin"
-          element={
-            <ProtectedRoute>
-              <AdminPanel />
-            </ProtectedRoute>
-          }
-        />
+<Route
+  path="/dashboard/admin"
+  element={
+    <ProtectedRoute>
+      <AdminPanel />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/dashboard/admin/events"
+  element={
+    <ProtectedRoute>
+      <AdminPanel />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/dashboard/events/approve"
+  element={
+    <ProtectedRoute>
+      <AdminPanel />
+    </ProtectedRoute>
+  }
+/>
+
 
         {/* AI */}
         <Route

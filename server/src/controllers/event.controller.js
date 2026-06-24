@@ -279,36 +279,6 @@ export const deleteEvent = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "Event deleted successfully"));
 });
 
-export const approveEvent = asyncHandler(async (req, res) => {
-  const event = await Event.findById(req.params.id);
-
-  if (!event) {
-    throw new ApiError(404, "Event not found");
-  }
-
-  event.status = "approved";
-  event.rejectionReason = "";
-  event.approvedBy = req.user._id;
-  event.approvedAt = new Date();
-
-  await event.save();
-
-  await deleteCacheByPattern("events:public:*");
-
-  await enqueueNotification({
-    recipient: event.createdBy,
-    sender: req.user._id,
-    title: "Event approved",
-    message: `Your event "${event.title}" has been approved and is now public.`,
-    type: "event",
-    link: `/events/${event._id}`,
-  });
-
-  return res
-    .status(200)
-    .json(new ApiResponse(200, event, "Event approved successfully"));
-});
-
 export const rejectEvent = asyncHandler(async (req, res) => {
   const { rejectionReason } = req.body;
 
