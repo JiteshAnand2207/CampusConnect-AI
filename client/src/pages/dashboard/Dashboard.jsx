@@ -23,6 +23,13 @@ const Dashboard = () => {
   icon: "🎟️",
   roles: ["student"],
 },
+{
+  title: "Verify Ticket",
+  description: "Verify student QR ticket codes at event entry.",
+  href: "/dashboard/verify-ticket",
+  icon: "📷",
+  roles: ["organizer", "admin"],
+},
     {
       title: "Create Event",
       description: "Add a new event with poster, venue, date, and capacity.",

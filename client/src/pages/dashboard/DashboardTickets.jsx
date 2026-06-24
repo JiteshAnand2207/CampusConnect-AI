@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { QRCodeSVG } from "qrcode.react";
 import {
   cancelRegistration,
   getMyRegistrations,
@@ -71,8 +72,8 @@ const DashboardTickets = () => {
           </h1>
 
           <p className="mt-3 max-w-3xl text-slate-600">
-            All your event registrations and ticket codes will appear here.
-            Show the ticket code at entry for verification.
+            Your event registrations appear here with a QR ticket and ticket
+            code. Show this QR or code at the event entry desk.
           </p>
 
           <Link
@@ -100,7 +101,8 @@ const DashboardTickets = () => {
             </h2>
 
             <p className="mt-2 text-slate-600">
-              Register for an approved event and your ticket will appear here.
+              Register for an approved event and your QR ticket will appear
+              here.
             </p>
 
             <Link
@@ -114,6 +116,7 @@ const DashboardTickets = () => {
           <div className="mt-8 grid gap-6 md:grid-cols-2">
             {registrations.map((registration) => {
               const event = registration.event;
+              const ticketCode = registration.ticketCode || "";
 
               return (
                 <article
@@ -122,7 +125,7 @@ const DashboardTickets = () => {
                 >
                   <div className="bg-slate-950 p-6 text-white">
                     <p className="text-xs font-bold uppercase tracking-widest text-indigo-300">
-                      CampusConnect AI Ticket
+                      CampusConnect AI QR Ticket
                     </p>
 
                     <h2 className="mt-3 text-2xl font-extrabold">
@@ -134,53 +137,74 @@ const DashboardTickets = () => {
                     </div>
                   </div>
 
-                  <div className="p-6">
-                    <div className="grid gap-4">
-                      <Info label="Category" value={event?.category || "N/A"} />
-                      <Info label="Venue" value={event?.venue || "N/A"} />
-                      <Info
-                        label="Starts"
-                        value={formatDate(event?.startDate)}
-                      />
-                      <Info label="Ends" value={formatDate(event?.endDate)} />
+                  <div className="grid gap-6 p-6 md:grid-cols-[1fr_190px]">
+                    <div>
+                      <div className="grid gap-4">
+                        <Info label="Category" value={event?.category || "N/A"} />
+                        <Info label="Venue" value={event?.venue || "N/A"} />
+                        <Info
+                          label="Starts"
+                          value={formatDate(event?.startDate)}
+                        />
+                        <Info label="Ends" value={formatDate(event?.endDate)} />
+                      </div>
+
+                      <div className="mt-6 rounded-2xl border border-dashed border-indigo-300 bg-indigo-50 p-5">
+                        <p className="text-xs font-bold uppercase tracking-widest text-indigo-600">
+                          Ticket Code
+                        </p>
+
+                        <p className="mt-3 break-all font-mono text-xl font-black text-slate-950">
+                          {ticketCode}
+                        </p>
+
+                        <p className="mt-3 text-xs font-semibold text-slate-500">
+                          Organizer or admin can verify this ticket using the
+                          verify ticket page.
+                        </p>
+                      </div>
                     </div>
 
-                    <div className="mt-6 rounded-2xl border border-dashed border-indigo-300 bg-indigo-50 p-5 text-center">
-                      <p className="text-xs font-bold uppercase tracking-widest text-indigo-600">
-                        Ticket Code
-                      </p>
-
-                      <p className="mt-3 break-all font-mono text-2xl font-black text-slate-950">
-                        {registration.ticketCode}
-                      </p>
-
-                      <p className="mt-3 text-xs font-semibold text-slate-500">
-                        Organizer or admin can verify this code from ticket
-                        verification.
-                      </p>
-                    </div>
-
-                    <div className="mt-6 flex flex-wrap gap-3">
-                      <Link
-                        to={`/events/${event?._id}`}
-                        className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700"
-                      >
-                        View Event
-                      </Link>
-
-                      {registration.status === "registered" && (
-                        <button
-                          type="button"
-                          disabled={actionLoading === registration._id}
-                          onClick={() => handleCancel(registration._id)}
-                          className="rounded-xl border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                          {actionLoading === registration._id
-                            ? "Cancelling..."
-                            : "Cancel Ticket"}
-                        </button>
+                    <div className="flex flex-col items-center justify-center rounded-2xl bg-slate-50 p-4 text-center">
+                      {ticketCode ? (
+                        <QRCodeSVG
+                          value={ticketCode}
+                          size={150}
+                          level="H"
+                          includeMargin
+                        />
+                      ) : (
+                        <p className="text-sm font-semibold text-slate-500">
+                          QR unavailable
+                        </p>
                       )}
+
+                      <p className="mt-3 text-xs font-bold uppercase tracking-widest text-slate-500">
+                        Scan at entry
+                      </p>
                     </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-3 border-t border-slate-100 p-6">
+                    <Link
+                      to={`/events/${event?._id}`}
+                      className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700"
+                    >
+                      View Event
+                    </Link>
+
+                    {registration.status === "registered" && (
+                      <button
+                        type="button"
+                        disabled={actionLoading === registration._id}
+                        onClick={() => handleCancel(registration._id)}
+                        className="rounded-xl border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {actionLoading === registration._id
+                          ? "Cancelling..."
+                          : "Cancel Ticket"}
+                      </button>
+                    )}
                   </div>
                 </article>
               );

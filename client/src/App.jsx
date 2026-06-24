@@ -1,4 +1,5 @@
 import DashboardTickets from "./pages/dashboard/DashboardTickets";
+import VerifyTicket from "./pages/dashboard/VerifyTicket";
 import { Route, Routes } from "react-router-dom";
 
 import Navbar from "./components/layout/Navbar";
@@ -54,6 +55,14 @@ const App = () => {
   element={
     <ProtectedRoute>
       <DashboardTickets />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/dashboard/verify-ticket"
+  element={
+    <ProtectedRoute>
+      <VerifyTicket />
     </ProtectedRoute>
   }
 />
